@@ -2,9 +2,10 @@
 #define GAME_H
 
 #include <SFML/Graphics.hpp>
-#include <vector>  
+#include <vector>
 #include <iostream>
-#include <filesystem>
+
+constexpr int matrixSize = 3;
 
 class Game {
 public:
@@ -26,6 +27,7 @@ private:
 	void updateGame();
 
 	bool _isDragging = false;
+	bool _gameEnd = false;
 	std::vector<std::vector<sf::RectangleShape>> _gameMatrix;
 
 	sf::Texture _ex_texture;
