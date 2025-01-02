@@ -22,9 +22,9 @@ void Game::render()
 {
 	this->_window->clear(sf::Color(84, 173, 232));
 
-	for (size_t objR = 0; objR < this->_gameMatrix.size(); objR++)
+	for (size_t objR = 0; objR < matrixSize; objR++)
 	{
-		for (size_t objC = 0; objC < this->_gameMatrix[objR].size(); objC++) {
+		for (size_t objC = 0; objC < matrixSize; objC++) {
 			auto value = this->_gameMatrix[objR][objC];
 			this->_window->draw(value);
 		}
@@ -41,10 +41,20 @@ void Game::render()
 			if (this->_turn == 0)
 			{
 				this->_winnerPrompt.setString("Player X Won!");
+				this->_winnerPrompt.setPosition(sf::Vector2f(this->_x - 580.0f, 
+					this->_y + 30.0f));
+			}
+			else if (this->_turn == -1)
+			{
+				this->_winnerPrompt.setString("Player O Won!");
+				this->_winnerPrompt.setPosition(sf::Vector2f(this->_x - 580.0f, 
+					this->_y + 30.0f));
 			}
 			else
 			{
-				this->_winnerPrompt.setString("Player O Won!");
+				this->_winnerPrompt.setString("TIE!");
+				this->_winnerPrompt.setPosition(sf::Vector2f(this->_x - 480.0f, 
+					this->_y + 30.0f));
 			}
 			this->showWinner = 1;
 		}
@@ -87,8 +97,8 @@ void Game::pollEvents()
 				this->_gameEnd = false;
 				this->_turn = 0;
 				this->showWinner = 0;
-				for (size_t objR = 0; objR < this->_gameMatrix.size(); objR++) {
-					for (size_t objC = 0; objC < this->_gameMatrix.size(); objC++) {
+				for (size_t objR = 0; objR < matrixSize; objR++) {
+					for (size_t objC = 0; objC < matrixSize; objC++) {
 						this->_gameMatrix[objR][objC].setTexture(nullptr);
 					}
 				}
@@ -110,28 +120,24 @@ void Game::updateGame()
 		player.setTexture(&this->_zero_texture);
 	}
 
-	for (size_t objR = 0; objR < this->_gameMatrix.size(); objR++) {
-		for (size_t objC = 0; objC < this->_gameMatrix.size(); objC++) {
+	for (size_t objR = 0; objR < matrixSize; objR++) {
+		for (size_t objC = 0; objC < matrixSize; objC++) {
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
 				if (this->_gameMatrix[objR][objC].getGlobalBounds().contains(this->_mousePos) &&
 					this->_gameMatrix[objR][objC].getTexture() == nullptr)
 				{
 					this->_gameMatrix[objR][objC].setTexture(player.getTexture());
-					if (this->_turn == 0)
-					{
-						this->_turn = 1;
-					}
-					else
-					{
-						this->_turn = 0;
+					this->_turn = (this->_turn == 0) ? 1 : 0;
+					while (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+						// Preventing mouse holding.
 					}
 				}
 			}
 		}
 	}
 
-	for (size_t objR = 0; objR < this->_gameMatrix.size(); objR++) {
+	for (size_t objR = 0; objR < matrixSize; objR++) {
 		// HORIZONTAL
 		if (this->_gameMatrix[0][0].getTexture() != nullptr &&
 			this->_gameMatrix[0][1].getTexture() != nullptr &&
@@ -242,6 +248,21 @@ void Game::updateGame()
 			}
 		}
 	}
+
+	int i = 0;
+	for (size_t objR = 0; objR < matrixSize; objR++) {
+		for (size_t objC = 0; objC < matrixSize; objC++) {
+			if (this->_gameMatrix[objR][objC].getTexture() != nullptr)
+			{
+				i++;
+			}
+		}
+		if (i == 9) {
+			this->_gameEnd = true;
+			this->_turn = 2;
+			break;
+		}
+	}
 }
 
 void Game::init()
@@ -257,15 +278,16 @@ void Game::init()
 	float objSize = 130.0f;
 	float distance = objSize + 5.0f;
 
-	for (size_t objR = 0; objR < this->_gameMatrix.size(); objR++) {
-		for (size_t objC = 0; objC < this->_gameMatrix.size(); objC++) {
+	for (size_t objR = 0; objR < matrixSize; objR++) {
+		for (size_t objC = 0; objC < matrixSize; objC++) {
 			sf::RectangleShape obj;
 
 			obj.setFillColor(sf::Color::White);
 			obj.setSize(sf::Vector2f(objSize, objSize));
 			obj.setOutlineColor(sf::Color::Black);
 			obj.setOutlineThickness(5.0f);
-			obj.setPosition(sf::Vector2f((this->_x - 200.0f) + objC * distance, (this->_y - 200.0f) + objR * distance));
+			obj.setPosition(sf::Vector2f((this->_x - 200.0f) + objC * distance, 
+				(this->_y - 200.0f) + objR * distance));
 			this->_gameMatrix[objR][objC] = obj;
 		}
 	}
@@ -301,5 +323,4 @@ void Game::init()
 	this->_winnerPrompt.setFont(this->_font);
 	this->_winnerPrompt.setOutlineThickness(0.5f);
 	this->_winnerPrompt.setOutlineColor(sf::Color::Black);
-	this->_winnerPrompt.setPosition(sf::Vector2f(this->_x - 580.0f,this->_y + 30.0f));
 }
