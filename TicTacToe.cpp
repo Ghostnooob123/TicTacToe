@@ -17,5 +17,8 @@ int main()
 		game.render();
 	}
 
+	delete window;
+	window = nullptr;
+
 	return 0;
 }

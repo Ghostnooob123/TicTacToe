@@ -16,10 +16,6 @@ void Game::update()
 	{
 		this->updateGame();
 	}
-	else
-	{
-		std::cout << "Game End ";
-	}
 }
 
 void Game::render()
@@ -34,9 +30,26 @@ void Game::render()
 		}
 	}
 
-	//this->_window->draw(this->_ex);
-
-	//this->_window->draw(this->_zero);
+	if (this->_gameEnd)
+	{
+		this->_window->draw(this->_restartB);
+		this->_window->draw(this->_restartB_Text);
+		
+		if (this->showWinner == 0)
+		{
+			this->_turn -= 1;
+			if (this->_turn == 0)
+			{
+				this->_winnerPrompt.setString("Player X Won!");
+			}
+			else
+			{
+				this->_winnerPrompt.setString("Player O Won!");
+			}
+			this->showWinner = 1;
+		}
+		this->_window->draw(this->_winnerPrompt);
+	}
 
 	this->_window->display();
 }
@@ -70,13 +83,16 @@ void Game::pollEvents()
 			this->_window->close();
 		}
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-			/*if (this->_shape.getGlobalBounds().contains(this->_mousePos) || this->_isDragging) {
-				this->_isDragging = true;
-				this->_shape.setPosition(this->_mousePos.x - 25.0f, this->_mousePos.y - 20.0f);
-			}*/
-		}
-		else {
-			this->_isDragging = false;
+			if (this->_restartB.getGlobalBounds().contains(this->_mousePos)) {
+				this->_gameEnd = false;
+				this->_turn = 0;
+				this->showWinner = 0;
+				for (size_t objR = 0; objR < this->_gameMatrix.size(); objR++) {
+					for (size_t objC = 0; objC < this->_gameMatrix.size(); objC++) {
+						this->_gameMatrix[objR][objC].setTexture(nullptr);
+					}
+				}
+			}
 		}
 	}
 }
@@ -84,15 +100,14 @@ void Game::pollEvents()
 void Game::updateGame()
 {
 	sf::RectangleShape player;
-	
-	switch (this->_turn)
+
+	if (this->_turn == 0)
 	{
-	case 0:
 		player.setTexture(&this->_ex_texture);
-		break;
-	case 1:
+	}
+	else
+	{
 		player.setTexture(&this->_zero_texture);
-		break;
 	}
 
 	for (size_t objR = 0; objR < this->_gameMatrix.size(); objR++) {
@@ -103,14 +118,13 @@ void Game::updateGame()
 					this->_gameMatrix[objR][objC].getTexture() == nullptr)
 				{
 					this->_gameMatrix[objR][objC].setTexture(player.getTexture());
-					switch (this->_turn)
+					if (this->_turn == 0)
 					{
-					case 0:
 						this->_turn = 1;
-						break;
-					case 1:
+					}
+					else
+					{
 						this->_turn = 0;
-						break;
 					}
 				}
 			}
@@ -199,6 +213,34 @@ void Game::updateGame()
 				return;
 			}
 		}
+
+		// DIAGONAL	
+		if (this->_gameMatrix[0][0].getTexture() != nullptr &&
+			this->_gameMatrix[1][1].getTexture() != nullptr &&
+			this->_gameMatrix[2][2].getTexture() != nullptr)
+		{
+			if (this->_gameMatrix[0][0].getTexture() ==
+				this->_gameMatrix[1][1].getTexture() &&
+				this->_gameMatrix[0][0].getTexture() ==
+				this->_gameMatrix[2][2].getTexture())
+			{
+				this->_gameEnd = true;
+				return;
+			}
+		}
+		if (this->_gameMatrix[0][2].getTexture() != nullptr &&
+			this->_gameMatrix[1][1].getTexture() != nullptr &&
+			this->_gameMatrix[2][0].getTexture() != nullptr)
+		{
+			if (this->_gameMatrix[0][2].getTexture() ==
+				this->_gameMatrix[1][1].getTexture() &&
+				this->_gameMatrix[0][2].getTexture() ==
+				this->_gameMatrix[2][0].getTexture())
+			{
+				this->_gameEnd = true;
+				return;
+			}
+		}
 	}
 }
 
@@ -208,6 +250,8 @@ void Game::init()
 	this->_y = this->_window->getSize().y / 2.0f;
 
 	this->_turn = 0;
+	this->showWinner = 0;
+	this->_gameEnd = false;
 
 	this->_gameMatrix.resize(matrixSize, std::vector<sf::RectangleShape>(matrixSize));
 	float objSize = 130.0f;
@@ -229,8 +273,33 @@ void Game::init()
 	if (!this->_ex_texture.loadFromFile("src/x.png")) {
 		return;
 	}
-
 	if (!this->_zero_texture.loadFromFile("src/zero.png")) {
 		return;
 	}
+
+	this->_restartB.setFillColor(sf::Color(201, 198, 197));
+	this->_restartB.setSize(sf::Vector2f(150.0f, 50.0f));
+	this->_restartB.setOutlineColor(sf::Color::Black);
+	this->_restartB.setOutlineThickness(3.5f);
+	this->_restartB.setPosition(sf::Vector2f((this->_x - 500.0f), (this->_y + 140.0f)));
+
+	if (!this->_font.loadFromFile("src/arial.ttf"))
+	{
+		return;
+	}
+	this->_restartB_Text.setCharacterSize(40);
+	this->_restartB_Text.setFillColor(sf::Color::Black);
+	this->_restartB_Text.setFont(this->_font);
+	this->_restartB_Text.setString("Restart");
+	this->_restartB_Text.setOutlineThickness(0.5f);
+	this->_restartB_Text.setOutlineColor(sf::Color::Black);
+	this->_restartB_Text.setPosition(sf::Vector2f(this->_restartB.getPosition().x + 8.0f,
+		this->_restartB.getPosition().y - 2.0f));
+
+	this->_winnerPrompt.setCharacterSize(55);
+	this->_winnerPrompt.setFillColor(sf::Color::Black);
+	this->_winnerPrompt.setFont(this->_font);
+	this->_winnerPrompt.setOutlineThickness(0.5f);
+	this->_winnerPrompt.setOutlineColor(sf::Color::Black);
+	this->_winnerPrompt.setPosition(sf::Vector2f(this->_x - 580.0f,this->_y + 30.0f));
 }

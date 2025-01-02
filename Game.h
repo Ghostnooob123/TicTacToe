@@ -26,14 +26,20 @@ private:
 	void pollEvents();
 	void updateGame();
 
-	bool _isDragging = false;
-	bool _gameEnd = false;
+	bool _gameEnd;
 	std::vector<std::vector<sf::RectangleShape>> _gameMatrix;
 
 	sf::Texture _ex_texture;
 	sf::Texture _zero_texture;
+	
+	sf::RectangleShape _restartB;
+	sf::Font _font;
+	sf::Text _restartB_Text;
+
+	sf::Text _winnerPrompt;
 
 	int _turn;
+	int showWinner;
 
 	void init();
 };
