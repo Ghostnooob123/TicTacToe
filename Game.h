@@ -3,7 +3,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include <iostream>
 
 constexpr int matrixSize = 3;
 
