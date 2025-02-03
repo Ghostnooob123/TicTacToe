@@ -5,7 +5,7 @@
 
 using namespace std;
 
-int main()
+int WinMain()
 {
 	sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(1200, 700), "TicTacToe.Io");
 	window->setFramerateLimit(60);
