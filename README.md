@@ -3,7 +3,7 @@ Tic tac toe game to have fun with a friend!(If you got friends...anyways).
 
 ## How to Use
 The program is safe to run but may occur a warning due the fact the program is not widely known.
-Find TicTacToe.exe and run it. To find it navigate to x64-release folder and there is gonna be the .exe.
+Find TicTacToe.exe and inside \x64-release\ folder.
 (Program is only compatible with Windows 10-11)
 
 ## Dependencies
