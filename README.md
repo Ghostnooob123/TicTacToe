@@ -1,5 +1,7 @@
 # TicTacToe
 Tic tac toe game to have fun with a friend!(If you got friends...anyways).
+![image](https://github.com/user-attachments/assets/2e723ab0-26ef-4681-9f73-7047477d5be5)
+
 
 ## How to Use
 The program is safe to run but may occur a warning due the fact the program is not widely known.
